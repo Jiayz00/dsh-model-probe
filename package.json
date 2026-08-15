@@ -1,0 +1,43 @@
+{
+  "name": "dsh-model-probe",
+  "version": "0.1.1",
+  "description": "DSH Web plugin: detect reasoning-effort levels and input/output modalities for custom models, then write them into llm-pi-ai settings.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./invariant": "./lib/invariant.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings-plugins",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ],
+      "platform": "web"
+    }
+  },
+  "dependencies": {},
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "llm",
+    "reasoning"
+  ],
+  "license": "Apache-2.0"
+}

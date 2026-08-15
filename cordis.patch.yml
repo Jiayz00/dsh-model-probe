@@ -1,0 +1,8 @@
+# Inserts the dual-face plugin row into the web profile roster.
+# Install: dsh plugin --profile web add link:<this-directory>
+#
+# Host half writes reasoningEfforts / input onto llm-pi-ai models.
+# Browser half (dsh.client → ./client) mounts its own card on settings.plugin.item.
+- insert:
+    - id: model-probe
+      name: dsh-model-probe
