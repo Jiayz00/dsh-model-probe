@@ -26,9 +26,9 @@ Detection prefers catalog fields (`supports_vision` / `supportsVision`, `support
 The two OpenAI-style wire protocols serialize reasoning effort differently, and the probe writes the shape each one expects. The protocol comes from the route's `api` in the Models settings; a route without one defaults to `openai-completions`.
 
 - **`openai-responses` (responses)** — only the `reasoningEfforts` map is written. pi-ai sends each level's wire value as `reasoning.effort` (and `none` when thinking is off). **No `compat` block is written**, and reasoning switches left there by older probe versions are removed on the next run — llm-pi-ai rejects `thinkingFormat` / `supportsReasoningEffort` on any protocol but `openai-completions`.
-- **`openai-completions` (messages / chat completions)** — the map is written too, plus `compat.thinkingFormat` (from the family table: `deepseek` for DeepSeek, `qwen` for Qwen, `zai` for GLM, `openai` for everyone else) and `compat.supportsReasoningEffort: true`. Depending on the format the effort then reaches the wire as `reasoning_effort`, `enable_thinking`, `thinking`, `reasoning.effort`, …
+- **`openai-completions`** (chat completions, aka "chatcc") — the map is written too, plus `compat.thinkingFormat` (from the family table: `deepseek` for DeepSeek, `qwen` for Qwen, `zai` for GLM, `openai` for everyone else) and `compat.supportsReasoningEffort: true`. Depending on the format the effort then reaches the wire as `reasoning_effort`, `enable_thinking`, `thinking`, `reasoning.effort`, …
 
-The card shows each provider's protocol as a pill next to its name, and every run-log line ends with the protocol/format that was written.
+The card shows each provider's protocol id — the exact value the API dropdown in the Models settings displays — as a pill next to its name, and every run-log line ends with the protocol/format that was written.
 
 ## Requirements
 

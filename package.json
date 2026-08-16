@@ -1,6 +1,6 @@
-{
+﻿{
   "name": "dsh-model-probe",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "DSH Web plugin: detect reasoning-effort levels and input/output modalities for custom models, then write them into llm-pi-ai settings.",
   "type": "module",
   "main": "lib/index.js",
@@ -41,3 +41,4 @@
   ],
   "license": "Apache-2.0"
 }
+

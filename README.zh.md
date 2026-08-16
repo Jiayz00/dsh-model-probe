@@ -26,9 +26,9 @@
 两种 OpenAI 系 wire 协议序列化推理档位的方式不同，探测按各自期望的形状写入。协议取自模型设置里路由的 `api`；没填的路由默认 `openai-completions`。
 
 - **`openai-responses`（responses）**——只写 `reasoningEfforts` 映射。pi-ai 把每个档位的 wire 值原样发成 `reasoning.effort`（关闭思考时发 `none`）。**不写 `compat` 块**；旧版探测留在里面的推理开关会在下一次运行时被清掉——llm-pi-ai 在 `openai-completions` 之外的协议上拒绝 `thinkingFormat` / `supportsReasoningEffort`。
-- **`openai-completions`（messages / chat completions）**——同样写映射，另写 `compat.thinkingFormat`（家族表给出：DeepSeek → `deepseek`，Qwen → `qwen`，GLM → `zai`，其余 → `openai`）和 `compat.supportsReasoningEffort: true`。按格式不同，档位最终以 `reasoning_effort`、`enable_thinking`、`thinking`、`reasoning.effort` 等形态上线。
+- **`openai-completions`**（chat completions，即 chatcc）——同样写映射，另写 `compat.thinkingFormat`（家族表给出：DeepSeek → `deepseek`，Qwen → `qwen`，GLM → `zai`，其余 → `openai`）和 `compat.supportsReasoningEffort: true`。按格式不同，档位最终以 `reasoning_effort`、`enable_thinking`、`thinking`、`reasoning.effort` 等形态上线。
 
-卡片在每个提供方名字旁用胶囊标签标出协议；运行日志每行末尾也会写明写入的协议/格式。
+卡片在每个提供方名字旁用胶囊标签标出协议 id（与模型设置里 api 下拉框的值完全一致，如 `openai-completions` / `openai-responses`）；运行日志每行末尾也会写明写入的协议/格式。
 
 ## 环境要求
 
