@@ -114,7 +114,7 @@ Overlay example (profile `cordis.patch.yml`):
 
 ## Family table
 
-The built-in table matches model ids by regular expression (order matters, first match wins) and supplies input/output modalities, effort levels, and the thinking format for common families — DeepSeek, Grok, Qwen, GLM, Kimi, MiniMax, Doubao/Seed, and image/video generators. An id that matches nothing falls back to `text` in, `text` out, and `off / low / medium / high`. The thinking format only applies on completions routes; see *Protocol adaptation*. Catalog data always refines the table; see *What it writes*.
+The built-in table matches model ids by regular expression (order matters, first match wins) and supplies input/output modalities, effort levels, and the thinking format for common families — GPT (5.2+ with `xhigh`, 5.1/5 without), Grok, DeepSeek, Qwen, GLM, Kimi, MiniMax, Doubao/Seed, and image/video generators. An id that matches nothing falls back to `text` in, `text` out, and `off / low / medium / high`. The thinking format only applies on completions routes; see *Protocol adaptation*. Catalog data always refines the table; see *What it writes*.
 
 ## Limits & security
 

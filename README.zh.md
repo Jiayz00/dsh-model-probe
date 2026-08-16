@@ -114,7 +114,7 @@ overlay 示例（profile 的 `cordis.patch.yml`）：
 
 ## 家族表
 
-内置表按正则匹配模型 id（顺序敏感，先命中先得），为常见家族提供输入/输出模态、档位列表和 thinking 格式——DeepSeek、Grok、Qwen、GLM、Kimi、MiniMax、Doubao/Seed，以及图像/视频生成模型。匹配不上的 id 退回「文本进、文本出、`off / low / medium / high`」。thinking 格式只在 completions 路由生效；见「协议适配」。目录数据总是对家族表的细化；见「会写什么」。
+内置表按正则匹配模型 id（顺序敏感，先命中先得），为常见家族提供输入/输出模态、档位列表和 thinking 格式——GPT（5.2+ 含 `xhigh`，5.1/5 不含）、Grok、DeepSeek、Qwen、GLM、Kimi、MiniMax、Doubao/Seed，以及图像/视频生成模型。匹配不上的 id 退回「文本进、文本出、`off / low / medium / high`」。thinking 格式只在 completions 路由生效；见「协议适配」。目录数据总是对家族表的细化；见「会写什么」。
 
 ## 限制与安全
 
