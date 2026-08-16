@@ -12,14 +12,23 @@ For every model in every custom provider's explicit model list:
 
 | Field | Meaning |
 |---|---|
-| `reasoningEfforts` | The effort levels the model accepts (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`). `false` marks a non-reasoning model. |
+| `reasoningEfforts` | A level → wire-value map over `off` / `minimal` / `low` / `medium` / `high` / `xhigh` / `max` (`off` may leave its wire value empty); levels left out count as unsupported. `false` marks a non-reasoning model. |
 | `input` | `["text"]`, plus `"image"` when the catalog or the family table says the model sees images. |
-| `compat.thinkingFormat` + `compat.supportsReasoningEffort` | Set when the model reasons, so the effort reaches the wire in the right format. |
+| `compat.thinkingFormat` + `compat.supportsReasoningEffort` | Written **only on `openai-completions` (messages) routes** — see *Protocol adaptation*. |
 | `contextWindow` / `maxTokens` | Copied from the catalog when it reports them. |
 
 Output modalities (text / image / video) are **displayed on the card only** — DSH has no persistable field for them.
 
 Detection prefers catalog fields (`supports_vision` / `supportsVision`, `supports_reasoning` / `supportsReasoning`, `reasoningEfforts`, `input_modalities` / `output_modalities`, `architecture.*`, `capabilities.*`). Whatever the catalog does not say is filled from the family table, and the two effort lists are **merged as a union**, so a thin catalog can never drop a level the family table already knows.
+
+## Protocol adaptation
+
+The two OpenAI-style wire protocols serialize reasoning effort differently, and the probe writes the shape each one expects. The protocol comes from the route's `api` in the Models settings; a route without one defaults to `openai-completions`.
+
+- **`openai-responses` (responses)** — only the `reasoningEfforts` map is written. pi-ai sends each level's wire value as `reasoning.effort` (and `none` when thinking is off). **No `compat` block is written**, and reasoning switches left there by older probe versions are removed on the next run — llm-pi-ai rejects `thinkingFormat` / `supportsReasoningEffort` on any protocol but `openai-completions`.
+- **`openai-completions` (messages / chat completions)** — the map is written too, plus `compat.thinkingFormat` (from the family table: `deepseek` for DeepSeek, `qwen` for Qwen, `zai` for GLM, `openai` for everyone else) and `compat.supportsReasoningEffort: true`. Depending on the format the effort then reaches the wire as `reasoning_effort`, `enable_thinking`, `thinking`, `reasoning.effort`, …
+
+The card shows each provider's protocol as a pill next to its name, and every run-log line ends with the protocol/format that was written.
 
 ## Requirements
 
@@ -105,7 +114,7 @@ Overlay example (profile `cordis.patch.yml`):
 
 ## Family table
 
-The built-in table matches model ids by regular expression (order matters, first match wins) and supplies input/output modalities, effort levels, and the thinking format for common families — DeepSeek, Grok, Qwen, GLM, Kimi, MiniMax, Doubao/Seed, and image/video generators. An id that matches nothing falls back to `text` in, `text` out, and `off / low / medium / high`. Catalog data always refines the table; see *What it writes*.
+The built-in table matches model ids by regular expression (order matters, first match wins) and supplies input/output modalities, effort levels, and the thinking format for common families — DeepSeek, Grok, Qwen, GLM, Kimi, MiniMax, Doubao/Seed, and image/video generators. An id that matches nothing falls back to `text` in, `text` out, and `off / low / medium / high`. The thinking format only applies on completions routes; see *Protocol adaptation*. Catalog data always refines the table; see *What it writes*.
 
 ## Limits & security
 
@@ -126,6 +135,7 @@ The built-in table matches model ids by regular expression (order matters, first
 | Log says *no API key, using family table* | The provider's `apiKeyEnv` did not resolve; the run fell back to the family table for that provider. |
 | Log says */models HTTP 4xx* | The gateway rejected the catalog request; the family table was used instead. |
 | Nothing changes after install | DSH was not restarted; plugin bundles load at boot. |
+| Settings validation complains about *compat reasoning switches* | An older probe wrote them onto a responses route. Run detection once — even fill-missing scrubs them. |
 
 ## License
 

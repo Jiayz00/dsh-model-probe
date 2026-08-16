@@ -12,14 +12,23 @@
 
 | 字段 | 含义 |
 |---|---|
-| `reasoningEfforts` | 模型接受的档位（`off`、`minimal`、`low`、`medium`、`high`、`xhigh`、`max`）；`false` 表示不推理。 |
+| `reasoningEfforts` | 「档位 → wire 值」映射（档位为 `off`、`minimal`、`low`、`medium`、`high`、`xhigh`、`max`；`off` 的 wire 值留空），未列出的档位视为不支持；`false` 表示不推理。 |
 | `input` | `["text"]`；目录或家族表标明支持视觉时加上 `"image"`。 |
-| `compat.thinkingFormat` + `compat.supportsReasoningEffort` | 模型会推理时写入，保证档位以正确格式上线。 |
+| `compat.thinkingFormat` + `compat.supportsReasoningEffort` | **只在 `openai-completions`（messages）路由写入**——见「协议适配」。 |
 | `contextWindow` / `maxTokens` | 目录带了就抄过来。 |
 
 输出模态（文本 / 图片 / 视频）**只在卡片上展示**——DSH 没有对应的持久化字段。
 
 探测优先使用目录字段（`supports_vision` / `supportsVision`、`supports_reasoning` / `supportsReasoning`、`reasoningEfforts`、`input_modalities` / `output_modalities`、`architecture.*`、`capabilities.*`）。目录没说的部分由家族表补齐；两边的档位列表**取并集**，目录少列的档位不会把家族表里已有的冲掉。
+
+## 协议适配
+
+两种 OpenAI 系 wire 协议序列化推理档位的方式不同，探测按各自期望的形状写入。协议取自模型设置里路由的 `api`；没填的路由默认 `openai-completions`。
+
+- **`openai-responses`（responses）**——只写 `reasoningEfforts` 映射。pi-ai 把每个档位的 wire 值原样发成 `reasoning.effort`（关闭思考时发 `none`）。**不写 `compat` 块**；旧版探测留在里面的推理开关会在下一次运行时被清掉——llm-pi-ai 在 `openai-completions` 之外的协议上拒绝 `thinkingFormat` / `supportsReasoningEffort`。
+- **`openai-completions`（messages / chat completions）**——同样写映射，另写 `compat.thinkingFormat`（家族表给出：DeepSeek → `deepseek`，Qwen → `qwen`，GLM → `zai`，其余 → `openai`）和 `compat.supportsReasoningEffort: true`。按格式不同，档位最终以 `reasoning_effort`、`enable_thinking`、`thinking`、`reasoning.effort` 等形态上线。
+
+卡片在每个提供方名字旁用胶囊标签标出协议；运行日志每行末尾也会写明写入的协议/格式。
 
 ## 环境要求
 
@@ -105,7 +114,7 @@ overlay 示例（profile 的 `cordis.patch.yml`）：
 
 ## 家族表
 
-内置表按正则匹配模型 id（顺序敏感，先命中先得），为常见家族提供输入/输出模态、档位列表和 thinking 格式——DeepSeek、Grok、Qwen、GLM、Kimi、MiniMax、Doubao/Seed，以及图像/视频生成模型。匹配不上的 id 退回「文本进、文本出、`off / low / medium / high`」。目录数据总是对家族表的细化；见「会写什么」。
+内置表按正则匹配模型 id（顺序敏感，先命中先得），为常见家族提供输入/输出模态、档位列表和 thinking 格式——DeepSeek、Grok、Qwen、GLM、Kimi、MiniMax、Doubao/Seed，以及图像/视频生成模型。匹配不上的 id 退回「文本进、文本出、`off / low / medium / high`」。thinking 格式只在 completions 路由生效；见「协议适配」。目录数据总是对家族表的细化；见「会写什么」。
 
 ## 限制与安全
 
@@ -126,6 +135,7 @@ overlay 示例（profile 的 `cordis.patch.yml`）：
 | 日志 *no API key, using family table* | 该提供方的 `apiKeyEnv` 解析不出密钥；这一家退回家族表。 |
 | 日志 */models HTTP 4xx* | 网关拒绝了目录请求；改用家族表。 |
 | 安装后没变化 | 没重启 DSH；bundle 在启动时加载。 |
+| 设置校验报 *compat reasoning switches* | 旧版探测把它们写到了 responses 路由上。跑一次探测即可——只补缺项也会清掉这些开关。 |
 
 ## 许可
 
